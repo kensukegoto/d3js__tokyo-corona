@@ -113,11 +113,7 @@ svg {
   display: block;
 }
 
-.counties {
-  fill: none;
-}
-
-.states {
+.city {
   fill: none;
   stroke: #fff;
   stroke-linejoin: round;

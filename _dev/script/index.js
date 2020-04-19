@@ -1,11 +1,12 @@
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
+
 const svg = d3.select("svg");
 const width = +svg.attr("width"),
       height = + svg.attr("height");
 
-const unemplyment = d3.map();
+const infection = d3.map();
 const projection = d3.geoMercator()
   .translate([width/2,height/2])
   .center([139.736394,35.685744])
@@ -14,12 +15,14 @@ const projection = d3.geoMercator()
 const path = d3.geoPath(projection);
 
 const x = d3.scaleLinear()
-  .domain([0,200]) // 10段階？
+  .domain([0,300]) // 10段階？
   .rangeRound([600,860]);
 
+// ６段階の不透明度で表現しても良いかも
 const color = d3.scaleThreshold()
-  .domain([50,100,150,200])
-  .range(d3.schemeBlues[5]);
+  .domain(d3.range(50,300,50))
+  .range(d3.schemeBlues[6]);
+
 
 let g = svg.append("g")
   .attr("class","key")
@@ -59,12 +62,10 @@ g.append("text")
 
 let prmsz = [
   d3.json("./data/tokyo.json"),
-  d3.tsv("data/map.tsv", d => {
-    unemplyment.set(d.id,+d.rate);
+  d3.csv("data/tokyo.csv", d => {
+    infection.set(d.city,+d.num);
   })
 ]
-
-
 
 Promise.all(prmsz).then(data => {
   ready(data[0]);
@@ -72,28 +73,28 @@ Promise.all(prmsz).then(data => {
   console.log(err);
 })
 
-
 function ready(us){
 
   svg.append("g")
-    .attr("class","countries")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.tokyo).features)
     .enter().append("path")
     .attr("fill",d => {
- 
-      return (d.properties.city_ja === "渋谷区") ? "#ff0000":"none";
-      
-      //  d.rateをここで設定して後で使いたい
-      // return color(d.rate = unemplyment.get(d.id))
+      return getColor(d.properties.city_ja);
     })
     .attr("d",path)
 
 
-  // svg.append("path")
-  //   .data([topojson.mesh(us,us.objects.states,(a,b) => {
-  //     return a !== b;
-  //   })])
-  //   .attr("class","states")
-  //   .attr("d",path)
+  svg.append("path")
+    .data([topojson.mesh(us,us.objects.tokyo,(a,b) => {
+      return a !== b;
+    })])
+    .attr("class","city")
+    .attr("d",path)
+}
+
+function getColor(city){
+
+  let num = infection.get(city);
+  return num ? color(num) : "none";
 }
