@@ -6,10 +6,11 @@
 # 地図の中心やスケールの指定
 
 ```js
-const projection = d3.geoMercator()
+const projection = d3
+  .geoMercator()
   .translate([width/2,height/2])
   .center([140.190179, 36.046454])
   .scale(1600);
-
+  
 const path = d3.geoPath(projection);
 ```
