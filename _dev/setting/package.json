@@ -28,7 +28,7 @@
     "webpack-stream": "^5.2.1"
   },
   "dependencies": {
-    "d3": "^5.15.1",
+    "d3": "^7.6.1",
     "topojson-client": "^3.1.0"
   }
 }
